@@ -11,11 +11,11 @@ from dotenv import load_dotenv
 # Load .env before importing modules that need API keys
 load_dotenv()
 
-from fetcher import fetch_transcript, load_urls_from_file
+from fetcher import fetch_transcript, load_urls_from_file, resolve_urls
 from notes_generator import generate_notes
 from image_generator import generate_images
 from github_pusher import push_to_github
-from config import DEFAULT_OUTPUT_FILE, DEFAULT_REPO_NAME, OUTPUT_DIR
+from config import DEFAULT_OUTPUT_FILE, DEFAULT_REPO_NAME, OUTPUT_DIR, DEFAULT_PLAYLIST_LIMIT
 
 # ── Logging setup ─────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -67,6 +67,10 @@ Examples:
         "--images-dir", default=OUTPUT_DIR,
         help=f"Directory to save generated images (default: {OUTPUT_DIR})"
     )
+    parser.add_argument(
+        "--limit", type=int, default=DEFAULT_PLAYLIST_LIMIT,
+        help=f"Max videos to pull from a playlist/channel (default: {DEFAULT_PLAYLIST_LIMIT})"
+    )
     return parser.parse_args()
 
 
@@ -92,13 +96,20 @@ def main():
 
     # ── Step 1: Collect URLs ──────────────────────────────────────────────────
     if args.urls:
-        urls = args.urls
+        raw_urls = args.urls
     else:
         urls_file = args.urls_file or "urls.txt"
-        urls = load_urls_from_file(urls_file)
-        if not urls:
+        raw_urls = load_urls_from_file(urls_file)
+        if not raw_urls:
             print(f"❌ No URLs found in {urls_file}")
             sys.exit(1)
+
+    print(f"\n🔍 Resolving {len(raw_urls)} input URL(s)...")
+    urls = resolve_urls(raw_urls, limit=args.limit)
+
+    if not urls:
+        print("❌ No video URLs could be resolved. Exiting.")
+        sys.exit(1)
 
     print(f"\n🎬 Processing {len(urls)} video(s)...\n")
 

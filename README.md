@@ -92,7 +92,30 @@ python main.py --urls "https://youtu.be/dQw4w9WgXcQ"
 python main.py --urls "https://youtu.be/abc" "https://youtube.com/watch?v=xyz"
 ```
 
-### From a URLs file
+### Entire playlist
+```bash
+python main.py --urls "https://www.youtube.com/playlist?list=PLxxxxxx"
+```
+
+### Entire YouTube channel (last 10 videos by default)
+```bash
+python main.py --urls "https://www.youtube.com/@3blue1brown"
+```
+
+### Channel with custom video limit
+```bash
+python main.py --urls "https://www.youtube.com/@3blue1brown" --limit 25
+```
+
+### Mix of videos, playlists, and channels
+```bash
+python main.py --urls \
+  "https://youtu.be/abc" \
+  "https://www.youtube.com/playlist?list=PLxxxxxx" \
+  "https://www.youtube.com/@SomeChannel"
+```
+
+### From a URLs file (can contain videos, playlists, channels)
 Add URLs to `urls.txt` (one per line) then:
 ```bash
 python main.py --urls-file urls.txt
@@ -116,10 +139,11 @@ python main.py --urls "https://youtu.be/abc" --no-images
 ### All options
 ```
 Options:
-  --urls URL [URL ...]     One or more YouTube URLs
+  --urls URL [URL ...]     One or more URLs (videos, playlists, channels)
   --urls-file FILE         Text file with URLs (one per line)
   --output FILE            Output filename (default: notes.md)
   --repo NAME              GitHub repo name (default: youtube-notes)
+  --limit N                Max videos from each playlist/channel (default: 10)
   --no-push                Skip GitHub push
   --no-images              Skip Gemini image generation
   --images-dir DIR         Images output directory (default: images)

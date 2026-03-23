@@ -9,6 +9,9 @@ OUTPUT_DIR = "images"
 DEFAULT_OUTPUT_FILE = "notes.md"
 DEFAULT_REPO_NAME = "youtube-notes"
 
+MAX_PLAYLIST_VIDEOS = 50   # Max videos to pull from a playlist/channel
+DEFAULT_PLAYLIST_LIMIT = 10  # Default limit when user doesn't specify --limit
+
 NOTES_SYSTEM_PROMPT = """You are an expert note-taker and educator. Your job is to create comprehensive, detailed study notes from YouTube video transcripts.
 
 Rules:
