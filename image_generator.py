@@ -13,7 +13,8 @@ except ImportError:
     def slugify(text):
         return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
 
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from config import GEMINI_IMAGE_MODEL, MAX_IMAGES
 
 logger = logging.getLogger(__name__)
@@ -29,21 +30,20 @@ def generate_image(prompt: str, filepath: str, api_key: str) -> bool:
 
     Returns True on success, False on failure.
     """
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel(GEMINI_IMAGE_MODEL)
+    client = genai.Client(api_key=api_key)
 
     for attempt in range(3):
         try:
-            response = model.generate_content(
+            response = client.models.generate_content(
+                model=GEMINI_IMAGE_MODEL,
                 contents=prompt,
-                generation_config=genai.GenerationConfig(
+                config=types.GenerateContentConfig(
                     response_modalities=["IMAGE", "TEXT"]
                 ),
             )
-            # Extract image bytes from response
             for part in response.candidates[0].content.parts:
                 if part.inline_data and part.inline_data.mime_type.startswith("image/"):
-                    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+                    os.makedirs(os.path.dirname(filepath) or ".", exist_ok=True)
                     with open(filepath, "wb") as f:
                         f.write(part.inline_data.data)
                     logger.info(f"Saved image: {filepath}")
@@ -82,21 +82,20 @@ def generate_images(markdown_content: str, output_dir: str, api_key: str) -> str
         logger.info("No image placeholders found in notes.")
         return markdown_content
 
-    # Limit total images
     placeholders = placeholders[:MAX_IMAGES]
     logger.info(f"Found {len(placeholders)} image placeholders to generate")
 
     os.makedirs(output_dir, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    counter = {"n": 0}
 
     def replace_placeholder(match):
         description = match.group(1)
         topic = match.group(2)
-        idx = replace_placeholder.count
-        replace_placeholder.count += 1
+        idx = counter["n"]
+        counter["n"] += 1
 
         if idx >= MAX_IMAGES:
-            # Skip remaining
             return f"> 🖼️ *Image: {topic}*"
 
         slug = slugify(topic)[:40]
@@ -111,8 +110,6 @@ def generate_images(markdown_content: str, output_dir: str, api_key: str) -> str
             return f"![{topic}]({rel_path})\n*{topic}*"
         else:
             return f"> 🖼️ *Image placeholder: {topic}* (generation failed)"
-
-    replace_placeholder.count = 0
 
     updated = PLACEHOLDER_RE.sub(replace_placeholder, markdown_content)
     return updated

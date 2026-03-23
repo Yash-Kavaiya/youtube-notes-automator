@@ -2,7 +2,7 @@
 
 CLAUDE_MODEL = "claude-opus-4-5"
 CLAUDE_FALLBACK_MODEL = "claude-sonnet-4-5"
-GEMINI_IMAGE_MODEL = "gemini-2.0-flash-preview-image-generation"
+GEMINI_IMAGE_MODEL = "gemini-2.0-flash-preview-image-generation"  # or "imagen-3.0-generate-002"
 MAX_TOKENS = 8000
 MAX_IMAGES = 8
 OUTPUT_DIR = "images"
