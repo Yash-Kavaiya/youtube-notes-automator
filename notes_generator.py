@@ -9,8 +9,8 @@ from config import CLAUDE_MODEL, CLAUDE_FALLBACK_MODEL, MAX_TOKENS, NOTES_SYSTEM
 logger = logging.getLogger(__name__)
 
 # Bedrock model IDs
-BEDROCK_MODEL = "us.anthropic.claude-sonnet-4-6-v1:0"
-BEDROCK_FALLBACK = "us.anthropic.claude-haiku-3-5-v1:0"
+BEDROCK_MODEL = "us.anthropic.claude-3-5-sonnet-20241022-v2:0"
+BEDROCK_FALLBACK = "us.anthropic.claude-3-5-haiku-20241022-v1:0"
 
 
 def get_client():
